@@ -371,3 +371,4 @@ Thumbs.db
 
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm+all,python
+/recommendation_engines/movie_recommendation/data_store/ml-100k
