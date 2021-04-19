@@ -29,8 +29,8 @@ u.data     -- The full u data set, 100000 ratings by 943 users on 1682 items.
               user id | item id | rating | timestamp. 
               The time stamps are unix seconds since 1/1/1970 UTC   """
 
-rating_columns = ['user id', 'item_id', 'rating', 'timestamp']
-df_rating = pd.read_csv(filepath_or_buffer='./data_store/ml-100k/u.data', sep='|', names=rating_columns,
+rating_columns = ['user_id', 'item_id', 'rating', 'timestamp']
+df_rating = pd.read_csv(filepath_or_buffer='./data_store/ml-100k/u.data', sep='\t', names=rating_columns,
                         encoding='latin-1')
 
 # loading items file:
@@ -111,3 +111,15 @@ The above is a sample of five random rows from the dataset
 print('Shape of user data file', df_items.shape)
 print("Data types of the different columns in user data fil: ", df_items.dtypes)
 print("A sample of the data in user dat file: ", df_items.sample(5))
+
+
+# Step 3: Building a collaborative filtering model from scratch
+# Finding the number of unique users and movies
+unique_users = df_rating['user_id'].unique().shape[0]
+unique_item = df_rating['item_id'].unique().shape[0]
+
+# Create a user_item matrix which can be used to calculate the similarty between users and items
+data_matrix = np.zeros((unique_users, unique_item))
+for line in df_rating.itertuples():
+    print(line,line[1]-1, line[2]-1)
+    # data_matrix[line[1]-1, line[2]-1] = line[3]
