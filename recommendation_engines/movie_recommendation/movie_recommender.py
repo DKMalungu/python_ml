@@ -112,7 +112,6 @@ print('Shape of user data file', df_items.shape)
 print("Data types of the different columns in user data fil: ", df_items.dtypes)
 print("A sample of the data in user dat file: ", df_items.sample(5))
 
-
 # Step 3: Building a collaborative filtering model from scratch
 # Finding the number of unique users and movies
 unique_users = df_rating['user_id'].unique().shape[0]
@@ -120,6 +119,34 @@ unique_item = df_rating['item_id'].unique().shape[0]
 
 # Create a user_item matrix which can be used to calculate the similarty between users and items
 data_matrix = np.zeros((unique_users, unique_item))
+
 for line in df_rating.itertuples():
-    print(line,line[1]-1, line[2]-1)
-    # data_matrix[line[1]-1, line[2]-1] = line[3]
+    data_matrix[line[1] - 1, line[2] - 1] = line[3]
+
+# Calculating the similarity of user rating and items
+from sklearn.metrics.pairwise import pairwise_distances
+
+user_similarity = pairwise_distances(data_matrix, metric='cosine')
+item_similarity = pairwise_distances(data_matrix.T, metric='cosine')
+
+
+# Creating the prediction function
+def predict(rating, similarity, prediction_type='user'):
+    prediction_type = prediction_type.lower()
+    if prediction_type == 'user':
+        mean_user_rating = rating.mean(axis=1).reshape(-1, 1)
+
+        rating_diff = (rating - mean_user_rating)
+
+        pred = mean_user_rating + similarity.dot(rating_diff) / np.array([np.abs(similarity).sum(axis=1)]).T
+
+    elif prediction_type == 'item':
+        pred = rating.dot(similarity) / np.array([np.abs(similarity).sum(axis=1)])
+    else:
+        raise ValueError(f"The prediction type provided: {prediction_type} is not in options ->> ('item' or 'user')")
+
+
+# Finally making prediction
+user_prediction = predict(rating=data_matrix, similarity=user_similarity, prediction_type='user')
+item_prediction = predict(rating=data_matrix, similarity=item_similarity, prediction_type='item')
+
